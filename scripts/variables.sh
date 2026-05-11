@@ -8,17 +8,20 @@ else
   export PID_DIR="$XDG_CACHE_HOME/tmux/tmux-notify"
 fi
 
-# Get ID's
-export SESSION_ID=$(tmux display-message -p '#{session_id}'  | tr -d $)
-export WINDOW_ID=$(tmux display-message -p '#{window_id}' | tr -d @)
-export PANE_ID=$(tmux display-message -p '#{pane_id}' | tr -d %)
+# Get ID's (respect pre-set values so shell-hook.sh can target the firing pane)
+export SESSION_ID="${SESSION_ID:-$(tmux display-message -p '#{session_id}' | tr -d $)}"
+export WINDOW_ID="${WINDOW_ID:-$(tmux display-message -p '#{window_id}' | tr -d @)}"
+export PANE_ID="${PANE_ID:-$(tmux display-message -p '#{pane_id}' | tr -d %)}"
 export PID_FILE_PATH="${PID_DIR}/${PANE_ID}.pid"
+export HOOK_FILE_PATH="${PID_DIR}/${PANE_ID}.hook"
 
 ## Tnotify tmux options
 export prompt_suffixes="@tnotify-prompt-suffixes"
 export prompt_suffixes_default="$,#,%"
-export custom_notify_command="@tnotify-custom-cmd"
-export custom_notify_command_default="bash ~/Desktop/test.bash"
+export on_finish_command="@tnotify-on-finish"
+export on_finish_command_default=""
+export on_start_command="@tnotify-on-start"
+export on_start_command_default=""
 
 # Notification verbosity settings
 export verbose_option="@tnotify-verbose"
@@ -31,6 +34,10 @@ export verbose_title_default=""
 # Monitor checker interval
 export monitor_sleep_duration="@tnotify-sleep-duration"
 export monitor_sleep_duration_default=10
+
+# Shell-hook integration (precmd / PROMPT_COMMAND)
+export shell_integration_option="@tnotify-shell-integration"
+export shell_integration_default="off"
 
 # Telegram notification settings
 export tmux_notify_telegram_bot_id="@tnotify-telegram-bot-id"

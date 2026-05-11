@@ -9,15 +9,22 @@ CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "${CURRENT_DIR}/helpers.sh"
 source "${CURRENT_DIR}/variables.sh"
 
+# Cancel shell-hook monitoring if active
+if [[ -f "$HOOK_FILE_PATH" ]]; then
+  rm "$HOOK_FILE_PATH"
+  tmux display-message "Pane monitoring canceled..."
+  exit 0
+fi
+
 # Cancel pane monitoring if active
 if [[ -f "$PID_FILE_PATH" ]]; then
   # Retrieve monitor process PID
   PID=$(cat "$PID_FILE_PATH")
-  
+
   # Kill process and remove pid file
   kill "$PID"
   rm "${PID_DIR}/${PANE_ID}.pid"
-  
+
   # Display success message
   tmux display-message "Pane monitoring canceled..."
 else

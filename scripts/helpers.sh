@@ -29,6 +29,24 @@ escape_glob_chars() {
   echo "$1" | sed 's/[.[\*^$()+?{|]/\\&/g'
 }
 
+# Run a user-supplied command (from a tmux option) with context env vars.
+# Usage: run_user_cmd <option_name_var> <default_var> [exit_status]
+run_user_cmd() {
+  local cmd="$(get_tmux_option "$1" "$2")"
+  [[ -z "$cmd" ]] && return 0
+  TMUX_NOTIFY_PANE_ID="$PANE_ID" \
+  TMUX_NOTIFY_SESSION_ID="$SESSION_ID" \
+  TMUX_NOTIFY_WINDOW_ID="$WINDOW_ID" \
+  TMUX_NOTIFY_EXIT_STATUS="${3-}" \
+    eval "$cmd"
+}
+
+# Check if shell-hook integration is enabled
+shell_integration_enabled() {
+  local v="$(get_tmux_option "$shell_integration_option" "$shell_integration_default")"
+  [ "$v" == "on" ]
+}
+
 # Check if verbose option is enabled
 verbose_enabled() {
   local verbose_value="$(get_tmux_option "$verbose_option" "$verbose_default")"

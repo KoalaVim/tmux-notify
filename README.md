@@ -23,7 +23,8 @@ Tmux plugin to notify you when processes are finished.
     *   [Add additional shell suffixes](#add-additional-shell-suffixes)
     *   [Enable telegram channel notifications](#enable-telegram-channel-notifications)
     *   [Enable Pushover notifications](#enable-pushover-notifications)
-    *   [Execute custom notification commands](#execute-custom-notification-commands)
+    *   [Execute custom user commands](#execute-custom-user-commands)
+    *   [Shell-hook detection (zsh / bash / fish)](#shell-hook-detection-zsh--bash--fish)
 *   [How does it work](#how-does-it-work)
 *   [Other use cases](#other-use-cases)
     *   [Use inside a docker container](#use-inside-a-docker-container)
@@ -140,19 +141,74 @@ By default, the tool only sends operating system notifications. It can, however,
 > \[!NOTE]\
 > You can create a free pushover account at [pushover.net](https://pushover.net/).
 
-### Execute custom notification commands
+### Execute custom user commands
 
-You can execute a custom command after a process has finished by putting `set -g @tnotify-custom-cmd 'your custom command here'` in the `.tmux.conf` file. The custom command is executed in the pane where the process has finished. If you want to execute multiple commands, you can also put them in a bash script and execute this script (i.e. `set -g @tnotify-custom-cmd 'bash /path/to/script.sh'`).
+Two hooks are available for running your own commands around the monitoring lifecycle. Both are set as tmux options and executed via `eval`.
+
+| Option                | When it fires                            |
+| --------------------- | ---------------------------------------- |
+| `@tnotify-on-start`   | Right after you trigger monitoring.      |
+| `@tnotify-on-finish`  | After the completion notification fires. |
+
+Example:
+
+```tmux
+set -g @tnotify-on-start  'echo "monitoring $TMUX_NOTIFY_PANE_ID" >> ~/.tmux/notify.log'
+set -g @tnotify-on-finish 'bash ~/bin/on-tnotify-finish.sh'
+```
+
+Each command runs with these environment variables exported:
+
+*   `TMUX_NOTIFY_PANE_ID` — the monitored pane's id (without the `%`)
+*   `TMUX_NOTIFY_SESSION_ID` — session id (without the `$`)
+*   `TMUX_NOTIFY_WINDOW_ID` — window id (without the `@`)
+*   `TMUX_NOTIFY_EXIT_STATUS` — exit status of the finished command (only set for `@tnotify-on-finish`, and only meaningful when [shell-hook detection](#shell-hook-detection-zsh--bash--fish) is enabled; empty in polling mode)
 
 > \[!WARNING]\
-> The custom command is executed using the `eval` command, so [be careful with what you put in here](https://stackoverflow.com/a/17529221/8135687).
+> Both commands are executed with `eval`, so [be careful with what you put in here](https://stackoverflow.com/a/17529221/8135687).
 
 > \[!NOTE]\
 > Please consider contributing to [this repository](https://github.com/rickstaa/tmux-notify) if your custom command is useful for others.
 
+### Shell-hook detection (zsh / bash / fish)
+
+By default the plugin polls the pane's output every few seconds and guesses that a command has finished when the last line looks like a shell prompt (see [Add additional shell suffixes](#add-additional-shell-suffixes)). This works inside any pane, including non-shells, but it can mis-fire or fire late.
+
+If you only care about *real* shells, you can switch to an event-driven mode that hooks into your shell's pre-prompt callback (`precmd` for zsh, `PROMPT_COMMAND` for bash, `fish_postexec` for fish). Notifications fire the instant the command returns and include the exit status.
+
+**1. Enable in your tmux config:**
+
+```tmux
+set -g @tnotify-shell-integration 'on'
+```
+
+**2. Source the matching snippet from your shell's rc file:**
+
+```zsh
+# ~/.zshrc
+source ~/.tmux/plugins/tmux-notify/shell/tmux-notify.zsh
+```
+
+```bash
+# ~/.bashrc
+source ~/.tmux/plugins/tmux-notify/shell/tmux-notify.bash
+```
+
+```fish
+# ~/.config/fish/config.fish (requires fish >= 3.2)
+source ~/.tmux/plugins/tmux-notify/shell/tmux-notify.fish
+```
+
+Reload tmux (`prefix + I` or `tmux source-file ~/.tmux.conf`), open a new shell, then use `prefix + m` as usual.
+
+> \[!NOTE]\
+> Shell-hook mode only fires for commands run from your interactive shell. Long-running non-shell programs (REPLs, `top`, an `ssh` session without this integration on the remote side, etc.) won't trigger a notification. If you need to cover those cases, leave `@tnotify-shell-integration` off and rely on the default polling mode.
+
 ## How does it work
 
-A naive approach. Checks if pane content ends with the bash prompt suffixes mentioned above every 10 seconds.
+By default, a naive polling approach: every few seconds the plugin captures the pane contents and checks whether the last line looks like a shell prompt (see [Add additional shell suffixes](#add-additional-shell-suffixes)).
+
+With `@tnotify-shell-integration 'on'`, polling is replaced by a `precmd` / `PROMPT_COMMAND` / `fish_postexec` hook in your shell that fires the notification directly when the next prompt is drawn. See [Shell-hook detection](#shell-hook-detection-zsh--bash--fish).
 
 ## Other use cases
 

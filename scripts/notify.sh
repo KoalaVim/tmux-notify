@@ -28,6 +28,20 @@ trap 'on_cancel' TERM
 
 ## Main script
 
+# Shell-hook mode: skip polling, drop a sentinel and let the shell's precmd /
+# PROMPT_COMMAND fire the notification when the next prompt is drawn.
+if shell_integration_enabled; then
+  if [[ -f "$HOOK_FILE_PATH" ]]; then
+    tmux display-message "Pane already monitored..."
+    exit 0
+  fi
+  # Sentinel contents: "<refocus>|<telegram>"
+  echo "${1}|${2}" > "$HOOK_FILE_PATH"
+  tmux display-message "Monitoring pane (shell hook)..."
+  run_user_cmd "$on_start_command" "$on_start_command_default"
+  exit 0
+fi
+
 # Monitor pane if it is not already monitored
 if [[ ! -f "$PID_FILE_PATH" ]]; then  # If pane not yet monitored
   # job started - create pid-file
@@ -35,6 +49,7 @@ if [[ ! -f "$PID_FILE_PATH" ]]; then  # If pane not yet monitored
   
   # Display tnotify start messsage
   tmux display-message "Monitoring pane..."
+  run_user_cmd "$on_start_command" "$on_start_command_default"
   
   # Construct tnotify finish message
   if verbose_enabled; then  # If @tnotify-verbose is enabled
@@ -83,12 +98,9 @@ if [[ ! -f "$PID_FILE_PATH" ]]; then  # If pane not yet monitored
     rm "$PID_FILE_PATH"
   fi
   
-  # Execute custom command if specified by user
-  custom_command="$(get_tmux_option "$custom_notify_command" "$custom_notify_command_default")"
-  if [[ -n "$custom_command" ]]; then
-    eval "${custom_command}"
-  fi
-  
+  # Execute on-finish user command if specified
+  run_user_cmd "$on_finish_command" "$on_finish_command_default"
+
   exit 0
 else  # If pane is already being monitored
   
