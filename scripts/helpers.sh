@@ -36,6 +36,7 @@ run_user_cmd() {
   [[ -z "$cmd" ]] && return 0
   TMUX_NOTIFY_PANE_ID="$PANE_ID" \
   TMUX_NOTIFY_SESSION_ID="$SESSION_ID" \
+  TMUX_NOTIFY_SESSION_NAME="$SESSION_NAME" \
   TMUX_NOTIFY_WINDOW_ID="$WINDOW_ID" \
   TMUX_NOTIFY_EXIT_STATUS="${3-}" \
     eval "$cmd"

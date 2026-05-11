@@ -14,6 +14,7 @@ CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # rather than from the *active* pane, which may have changed.
 export PANE_ID="${TMUX_PANE#%}"
 export SESSION_ID="$(tmux display-message -p -t "$TMUX_PANE" '#{session_id}' | tr -d $)"
+export SESSION_NAME="$(tmux display-message -p -t "$TMUX_PANE" '#{session_name}')"
 export WINDOW_ID="$(tmux display-message -p -t "$TMUX_PANE" '#{window_id}' | tr -d @)"
 
 source "${CURRENT_DIR}/helpers.sh"

@@ -161,6 +161,7 @@ Each command runs with these environment variables exported:
 
 *   `TMUX_NOTIFY_PANE_ID` — the monitored pane's id (without the `%`)
 *   `TMUX_NOTIFY_SESSION_ID` — session id (without the `$`)
+*   `TMUX_NOTIFY_SESSION_NAME` — session name
 *   `TMUX_NOTIFY_WINDOW_ID` — window id (without the `@`)
 *   `TMUX_NOTIFY_EXIT_STATUS` — exit status of the finished command (only set for `@tnotify-on-finish`, and only meaningful when [shell-hook detection](#shell-hook-detection-zsh--bash--fish) is enabled; empty in polling mode)
 

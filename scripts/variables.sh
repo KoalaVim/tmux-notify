@@ -10,6 +10,7 @@ fi
 
 # Get ID's (respect pre-set values so shell-hook.sh can target the firing pane)
 export SESSION_ID="${SESSION_ID:-$(tmux display-message -p '#{session_id}' | tr -d $)}"
+export SESSION_NAME="${SESSION_NAME:-$(tmux display-message -p '#{session_name}')}"
 export WINDOW_ID="${WINDOW_ID:-$(tmux display-message -p '#{window_id}' | tr -d @)}"
 export PANE_ID="${PANE_ID:-$(tmux display-message -p '#{pane_id}' | tr -d %)}"
 export PID_FILE_PATH="${PID_DIR}/${PANE_ID}.pid"
