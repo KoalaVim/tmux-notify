@@ -13,6 +13,7 @@ source "${CURRENT_DIR}/variables.sh"
 if [[ -f "$HOOK_FILE_PATH" ]]; then
   rm "$HOOK_FILE_PATH"
   tmux display-message "Pane monitoring canceled..."
+  run_user_cmd "$on_cancel_command" "$on_cancel_command_default"
   exit 0
 fi
 
@@ -27,6 +28,7 @@ if [[ -f "$PID_FILE_PATH" ]]; then
 
   # Display success message
   tmux display-message "Pane monitoring canceled..."
+  run_user_cmd "$on_cancel_command" "$on_cancel_command_default"
 else
   tmux display-message "Pane not monitored..."
   exit 0

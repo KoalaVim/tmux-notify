@@ -23,6 +23,8 @@ export on_finish_command="@tnotify-on-finish"
 export on_finish_command_default=""
 export on_start_command="@tnotify-on-start"
 export on_start_command_default=""
+export on_cancel_command="@tnotify-on-cancel"
+export on_cancel_command_default=""
 
 # Notification verbosity settings
 export verbose_option="@tnotify-verbose"

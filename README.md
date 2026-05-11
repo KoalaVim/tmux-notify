@@ -145,16 +145,18 @@ By default, the tool only sends operating system notifications. It can, however,
 
 Two hooks are available for running your own commands around the monitoring lifecycle. Both are set as tmux options and executed via `eval`.
 
-| Option                | When it fires                            |
-| --------------------- | ---------------------------------------- |
-| `@tnotify-on-start`   | Right after you trigger monitoring.      |
-| `@tnotify-on-finish`  | After the completion notification fires. |
+| Option                | When it fires                                        |
+| --------------------- | ---------------------------------------------------- |
+| `@tnotify-on-start`   | Right after you trigger monitoring.                  |
+| `@tnotify-on-finish`  | After the completion notification fires.             |
+| `@tnotify-on-cancel`  | After monitoring is canceled via the cancel keybind. |
 
 Example:
 
 ```tmux
 set -g @tnotify-on-start  'echo "monitoring $TMUX_NOTIFY_PANE_ID" >> ~/.tmux/notify.log'
 set -g @tnotify-on-finish 'bash ~/bin/on-tnotify-finish.sh'
+set -g @tnotify-on-cancel 'echo "canceled $TMUX_NOTIFY_PANE_ID" >> ~/.tmux/notify.log'
 ```
 
 Each command runs with these environment variables exported:
