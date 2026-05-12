@@ -89,6 +89,8 @@ To change the verbose notification text, put `set -g @tnotify-verbose-msg 'put y
 
 For the complete list of aliases and variables, you are referred to the `FORMATS` section of the [tmux manual](http://man7.org/linux/man-pages/man1/tmux.1.html). You can also add a notification title using `set -g @tnotify-verbose-title`. Doing so will move the verbose notification text into the notification body.
 
+Literal `\n` sequences in the verbose message or title are converted to real newlines, so you can produce multi-line notifications, e.g. `set -g @tnotify-verbose-msg '(#S) done\nexit: ?'`.
+
 When [shell-hook detection](#shell-hook-detection-zsh--bash--fish) is enabled on zsh or fish, you can also include the command that just finished by putting `#{tnotify_command}` in your verbose message or title — for example:
 
 ```tmux

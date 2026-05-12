@@ -101,6 +101,10 @@ send_pushover_message() {
 # Send notification
 # Usage: notify <message> <title> <send_telegram>
 notify() {
+  # Translate literal backslash-n in the user-supplied message/title to real
+  # newlines so multi-line notifications work from `@tnotify-verbose-msg`.
+  set -- "${1//\\n/$'\n'}" "${2//\\n/$'\n'}" "${@:3}"
+
   # Switch notification method based on OS
   if [[ "$OSTYPE" =~ ^darwin ]]; then # If macOS
     if [ -n "$2" ]; then
