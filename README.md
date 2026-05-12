@@ -89,6 +89,14 @@ To change the verbose notification text, put `set -g @tnotify-verbose-msg 'put y
 
 For the complete list of aliases and variables, you are referred to the `FORMATS` section of the [tmux manual](http://man7.org/linux/man-pages/man1/tmux.1.html). You can also add a notification title using `set -g @tnotify-verbose-title`. Doing so will move the verbose notification text into the notification body.
 
+When [shell-hook detection](#shell-hook-detection-zsh--bash--fish) is enabled on zsh or fish, you can also include the command that just finished by putting `#{tnotify_command}` in your verbose message or title — for example:
+
+```tmux
+set -g @tnotify-verbose-msg '(#S, #I:#P) finished: #{tnotify_command}'
+```
+
+In polling mode and under bash, `#{tnotify_command}` expands to an empty string.
+
 ### Change monitor update period
 
 By default, the monitor sleep period is set to 10 seconds. This means that tmux-notify checks the pane activity every 10 seconds.
@@ -166,6 +174,7 @@ Each command runs with these environment variables exported:
 *   `TMUX_NOTIFY_SESSION_NAME` — session name
 *   `TMUX_NOTIFY_WINDOW_ID` — window id (without the `@`)
 *   `TMUX_NOTIFY_EXIT_STATUS` — exit status of the finished command (only set for `@tnotify-on-finish`, and only meaningful when [shell-hook detection](#shell-hook-detection-zsh--bash--fish) is enabled; empty in polling mode)
+*   `TMUX_NOTIFY_COMMAND` — the command line that just finished (only set for `@tnotify-on-finish`, and only when [shell-hook detection](#shell-hook-detection-zsh--bash--fish) is enabled with zsh or fish; empty in bash and in polling mode)
 
 > \[!WARNING]\
 > Both commands are executed with `eval`, so [be careful with what you put in here](https://stackoverflow.com/a/17529221/8135687).
@@ -177,7 +186,7 @@ Each command runs with these environment variables exported:
 
 By default the plugin polls the pane's output every few seconds and guesses that a command has finished when the last line looks like a shell prompt (see [Add additional shell suffixes](#add-additional-shell-suffixes)). This works inside any pane, including non-shells, but it can mis-fire or fire late.
 
-If you only care about *real* shells, you can switch to an event-driven mode that hooks into your shell's pre-prompt callback (`precmd` for zsh, `PROMPT_COMMAND` for bash, `fish_postexec` for fish). Notifications fire the instant the command returns and include the exit status.
+If you only care about *real* shells, you can switch to an event-driven mode that hooks into your shell's pre-prompt callback (`precmd` for zsh, `PROMPT_COMMAND` for bash, `fish_postexec` for fish). Notifications fire the instant the command returns and include the exit status. On zsh and fish, the command line that just ran is included in the default notification text too.
 
 **1. Enable in your tmux config:**
 
@@ -206,6 +215,9 @@ Reload tmux (`prefix + I` or `tmux source-file ~/.tmux.conf`), open a new shell,
 
 > \[!NOTE]\
 > Shell-hook mode only fires for commands run from your interactive shell. Long-running non-shell programs (REPLs, `top`, an `ssh` session without this integration on the remote side, etc.) won't trigger a notification. If you need to cover those cases, leave `@tnotify-shell-integration` off and rely on the default polling mode.
+
+> \[!NOTE]\
+> On zsh and fish, the command line that just finished is also exposed to user hooks via `TMUX_NOTIFY_COMMAND` (see [Execute custom user commands](#execute-custom-user-commands)). Bash doesn't expose this — `TMUX_NOTIFY_COMMAND` will be empty there.
 
 ## How does it work
 
