@@ -108,6 +108,17 @@ By default, the monitor sleep period is set to 10 seconds. This means that tmux-
 > \[!WARNING]\
 > Remember that there is a trade-off between notification speed (short sleep duration) and the amount of memory this tool needs.
 
+### Set notification urgency (Linux only)
+
+On Linux, you can control the urgency level passed to `notify-send`. Valid values are `low`, `normal` (default), and `critical`.
+
+```tmux
+set -g @tnotify-urgency 'critical'
+```
+
+> \[!NOTE]\
+> This option is ignored on macOS since `osascript` notifications don't have an urgency concept.
+
 ### Add additional shell suffixes
 
 The Tmux notify script uses your shell prompt suffix to check whether a command has finished. By default, it looks for the `$`, `#` and `%` suffixes.

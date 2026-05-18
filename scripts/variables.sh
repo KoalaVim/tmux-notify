@@ -26,6 +26,10 @@ export on_start_command_default=""
 export on_cancel_command="@tnotify-on-cancel"
 export on_cancel_command_default=""
 
+# Notification urgency (passed to notify-send -u on Linux; ignored on macOS)
+export urgency_option="@tnotify-urgency"
+export urgency_default="normal"
+
 # Notification verbosity settings
 export verbose_option="@tnotify-verbose"
 export verbose_default="off"

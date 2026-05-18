@@ -115,10 +115,11 @@ notify() {
   else
     # notify-send does not always work due to changing dbus params
     # see https://superuser.com/questions/1118878/using-notify-send-in-a-tmux-session-shows-error-no-notification#1118896
+    local urgency="$(get_tmux_option "$urgency_option" "$urgency_default")"
     if [ -n "$2" ]; then
-      notify-send "$2" "$1"
+      notify-send -u "$urgency" "$2" "$1"
     else
-      notify-send "$1"
+      notify-send -u "$urgency" "$1"
     fi
   fi
   
