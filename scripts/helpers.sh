@@ -107,7 +107,9 @@ notify() {
 
   # Switch notification method based on OS
   if [[ "$OSTYPE" =~ ^darwin ]]; then # If macOS
-    if [ -n "$2" ]; then
+    if command -v notify-macos >/dev/null 2>&1; then
+      notify-macos "${2:-tmux-notify}" "$1" &
+    elif [ -n "$2" ]; then
       osascript -e 'display notification "'"$1"'" with title "'"$2"'"'
     else
       osascript -e 'display notification "'"$1"'" with title "tmux-notify"'
